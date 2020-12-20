@@ -26,6 +26,7 @@ use AsyncPHP\Middleware\HeaderMiddleware;
 use AsyncPHP\Middleware\OriginMiddleware;
 use League\Uri\Uri;
 use Monolog\Logger;
+use function Amp\ByteStream\getStdout;
 use function Amp\signal;
 
 $context = (new Socket\BindContext)
@@ -46,11 +47,11 @@ $unencrypted = \array_map(function (string $uri): Server {
 }, REDIRECT_URIS);
 
 // Switch to configured user after binding sockets.
-if (!\posix_setuid(USER_ID)) {
+if (defined('USER_ID') && !\posix_setuid(USER_ID)) {
     throw new \RuntimeException('Could not switch to user ' . USER_ID);
 }
 
-$logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+$logHandler = new StreamHandler(getStdout());
 $logHandler->setFormatter(new ConsoleFormatter);
 $logger = new Logger('server');
 $logger->pushHandler($logHandler);
@@ -123,7 +124,7 @@ $server->start();
 $redirect->start();
 
 // Await SIGINT, SIGTERM, or SIGSTOP to be received.
-$signal = signal(\SIGINT, \SIGTERM, \SIGSTOP);
+$signal = signal(\SIGINT, \SIGTERM);
 
 $logger->info(\sprintf("Received signal %d, stopping HTTP server", $signal));
 
