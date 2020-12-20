@@ -2,6 +2,8 @@
 /certificate.pem
 /key.pem
 /log
+/node_modules
+/public/dist
 /vendor
 
 /config.php

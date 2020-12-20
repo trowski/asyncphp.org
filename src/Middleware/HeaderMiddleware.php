@@ -24,6 +24,7 @@ class HeaderMiddleware implements Middleware
             $response->setHeader('Content-Security-Policy', \implode('; ', [
                 "default-src 'self'",
                 "connect-src 'self' wss:",
+                "style-src 'self' 'unsafe-inline'",
                 'block-all-mixed-content',
                 "base-uri 'self'",
             ]));
