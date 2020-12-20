@@ -1,0 +1,26 @@
+{
+    "require": {
+        "php": "^8",
+        "ext-fiber": "*",
+        "amphp/amp": "^3-dev",
+        "amphp/http-server": "^3-dev",
+        "amphp/http-server-router": "^2-dev",
+        "amphp/http-server-session": "^3-dev",
+        "amphp/http-server-static-content": "^2-dev",
+        "amphp/log": "^2-dev",
+        "monolog/monolog": "^2.2"
+    },
+    "require-dev": {
+        "amphp/php-cs-fixer-config": "dev-master"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "AsyncPHP\\": "src"
+        },
+        "files": [
+            "config.php"
+        ]
+    }
+}

@@ -1,0 +1,7 @@
+/.php_cs.cache
+/certificate.pem
+/key.pem
+/log
+/vendor
+
+/config.php
