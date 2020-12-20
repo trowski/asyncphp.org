@@ -10,13 +10,21 @@ use Amp\Http\Server\Middleware;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
+use Amp\Http\Server\Router;
+use Amp\Http\Server\StaticContent\DocumentRoot;
 use Amp\Http\Status;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
+use Amp\Loop;
 use Amp\Socket;
 use Amp\Socket\Server;
+use Amp\Websocket\Client;
+use Amp\Websocket\Server\ClientHandler;
+use Amp\Websocket\Server\Gateway;
+use Amp\Websocket\Server\Websocket;
 use AsyncPHP\Middleware\HeaderMiddleware;
 use AsyncPHP\Middleware\OriginMiddleware;
+use League\Uri\Uri;
 use Monolog\Logger;
 use function Amp\signal;
 
@@ -27,18 +35,17 @@ $context = (new Socket\BindContext)
             ->withMinimumVersion(STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)
     );
 
+// Main server on encrypted ports.
 $encrypted = \array_map(function (string $uri) use ($context): Server {
     return Server::listen($uri, $context);
 }, ORIGIN_URIS);
 
 // Redirect server on unencrypted ports
-
 $unencrypted = \array_map(function (string $uri): Server {
     return Server::listen($uri);
 }, REDIRECT_URIS);
 
 // Switch to configured user after binding sockets.
-
 if (!\posix_setuid(USER_ID)) {
     throw new \RuntimeException('Could not switch to user ' . USER_ID);
 }
@@ -48,12 +55,44 @@ $logHandler->setFormatter(new ConsoleFormatter);
 $logger = new Logger('server');
 $logger->pushHandler($logHandler);
 
-$requestHandler = new CallableRequestHandler(static function (Request $request): Response {
-    return new Response(Status::OK, [
-        "content-type" => "text/plain; charset=utf-8"
-    ], "Hello, World!");
+// Log any unexpected uncaught exceptions.
+Loop::setErrorHandler(function (\Throwable $exception) use ($logger): void {
+    $logger->alert('Uncaught exception from loop: ' . $exception->getMessage() . '; '
+        . $exception->getTraceAsString());
 });
 
+$requestHandler = new Router;
+
+$requestHandler->addRoute('GET', '/broadcast', new Websocket(new class() implements ClientHandler {
+    public function handleHandshake(Gateway $gateway, Request $request, Response $response): Response
+    {
+        $uri = Uri::createFromString($request->getHeader('origin'));
+
+        if (!\preg_match(ORIGIN_REGEXP, $uri->getAuthority())) {
+            return $gateway->getErrorHandler()->handleError(Status::FORBIDDEN, 'Origin forbidden', $request);
+        }
+
+        return $response;
+    }
+
+    public function handleClient(Gateway $gateway, Client $client, Request $request, Response $response): void
+    {
+        $gateway->broadcast(\sprintf('Client %d from %s joined', $client->getId(), $client->getRemoteAddress()));
+
+        try {
+            while ($message = $client->receive()) {
+                $gateway->broadcast(\sprintf('%d: %s', $client->getId(), $message->buffer()));
+            }
+        } finally {
+            $gateway->broadcast(\sprintf('Client %d from %s left', $client->getId(), $client->getRemoteAddress()));
+        }
+    }
+}));
+
+// Set static document request handler as router fallback.
+$requestHandler->setFallback(new DocumentRoot(__DIR__ . '/public'));
+
+// Stack middleware on request handler.
 $requestHandler = Middleware\stack(
     $requestHandler,
     new OriginMiddleware(ORIGIN_SCHEME, ORIGIN_HOST, ORIGIN_PORT, ORIGIN_REGEXP),
@@ -61,10 +100,8 @@ $requestHandler = Middleware\stack(
 );
 
 // Primary server on encrypted ports.
-
 $server = new HttpServer($encrypted, $requestHandler, $logger);
 
-// Redirect server on unencrypted ports
 
 $requestHandler = new CallableRequestHandler(function (Request $request): Response {
     $uri = $request->getUri();
@@ -78,10 +115,10 @@ $requestHandler = Middleware\stack(
     new OriginMiddleware(REDIRECT_ORIGIN_SCHEME, REDIRECT_ORIGIN_HOST, REDIRECT_ORIGIN_PORT, REDIRECT_ORIGIN_REGEXP)
 );
 
+// Redirect server on unencrypted ports
 $redirect = new HttpServer($unencrypted, $requestHandler, $logger);
 
 // Start servers.
-
 $server->start();
 $redirect->start();
 
@@ -90,5 +127,6 @@ $signal = signal(\SIGINT, \SIGTERM, \SIGSTOP);
 
 $logger->info(\sprintf("Received signal %d, stopping HTTP server", $signal));
 
+// Stop servers after signal is received.
 $redirect->stop();
 $server->stop();

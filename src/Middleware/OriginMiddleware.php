@@ -25,7 +25,7 @@ class OriginMiddleware implements Middleware
         $this->port = $port;
 
         if ($regexp === null) {
-            $this->regexp = '/^(www\.)?' . \str_replace(['.', '/'], ['\\.', '\\/'], $this->host) . '$/i';
+            $this->regexp = '/^(www\\.)?' . \str_replace(['.', '/'], ['\\.', '\\/'], $this->host) . '$/i';
         } else {
             $this->regexp = $regexp;
         }

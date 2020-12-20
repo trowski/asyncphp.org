@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6a3ee2810879d11b00da02d2d67a2c9c",
+    "content-hash": "9abc3de96609b8e180305a9550d8f0dc",
     "packages": [
         {
             "name": "amphp/amp",
@@ -506,12 +506,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/http-server.git",
-                "reference": "7640232053f1ca1fe9c984abfde0ba2136a0ae18"
+                "reference": "c4ad690eb773030ae3c02d0d4de1137e65771e15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/http-server/zipball/7640232053f1ca1fe9c984abfde0ba2136a0ae18",
-                "reference": "7640232053f1ca1fe9c984abfde0ba2136a0ae18",
+                "url": "https://api.github.com/repos/amphp/http-server/zipball/c4ad690eb773030ae3c02d0d4de1137e65771e15",
+                "reference": "c4ad690eb773030ae3c02d0d4de1137e65771e15",
                 "shasum": ""
             },
             "require": {
@@ -590,7 +590,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-24T16:59:33+00:00"
+            "time": "2020-12-20T05:37:08+00:00"
         },
         {
             "name": "amphp/http-server-router",
@@ -1256,6 +1256,160 @@
                 }
             ],
             "time": "2020-11-23T21:24:34+00:00"
+        },
+        {
+            "name": "amphp/websocket",
+            "version": "v2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/websocket.git",
+                "reference": "5167827d734f78595881ef0157416e14449a8db0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/websocket/zipball/5167827d734f78595881ef0157416e14449a8db0",
+                "reference": "5167827d734f78595881ef0157416e14449a8db0",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3-dev",
+                "amphp/byte-stream": "^2-dev",
+                "amphp/socket": "^2-dev",
+                "cash/lrucache": "^1",
+                "php": ">=8"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "dev-master",
+                "amphp/phpunit-util": "^2-dev",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^3.11@dev"
+            },
+            "suggest": {
+                "ext-zlib": "Required for compression"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Websocket\\": "src"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Bob Weinand",
+                    "email": "bobwei9@hotmail.com"
+                }
+            ],
+            "description": "Shared code for websocket servers and clients.",
+            "homepage": "https://github.com/amphp/websocket",
+            "keywords": [
+                "amp",
+                "amphp",
+                "async",
+                "http",
+                "non-blocking",
+                "websocket"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-12-20T18:33:14+00:00"
+        },
+        {
+            "name": "amphp/websocket-server",
+            "version": "v3.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/websocket-server.git",
+                "reference": "58934515ba5bfc9e79e912ec36b14636d119c4b0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/websocket-server/zipball/58934515ba5bfc9e79e912ec36b14636d119c4b0",
+                "reference": "58934515ba5bfc9e79e912ec36b14636d119c4b0",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3-dev",
+                "amphp/byte-stream": "^2-dev",
+                "amphp/http": "^1.3",
+                "amphp/http-server": "^3-dev",
+                "amphp/socket": "^2-dev",
+                "amphp/websocket": "^2-dev",
+                "php": ">=8"
+            },
+            "require-dev": {
+                "amphp/http-client": "^5-dev",
+                "amphp/http-server-router": "^2-dev",
+                "amphp/http-server-static-content": "^2-dev",
+                "amphp/log": "^2-dev",
+                "amphp/php-cs-fixer-config": "dev-master",
+                "amphp/phpunit-util": "^2-dev",
+                "league/climate": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^3.11@dev"
+            },
+            "suggest": {
+                "ext-zlib": "Required for compression"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Websocket\\Server\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@php.net"
+                },
+                {
+                    "name": "Bob Weinand"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Websocket server for Amp's HTTP server.",
+            "homepage": "https://github.com/amphp/websocket-server",
+            "keywords": [
+                "http",
+                "server",
+                "websocket"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-10-26T22:22:59+00:00"
         },
         {
             "name": "amphp/windows-registry",
@@ -3913,6 +4067,8 @@
         "amphp/http-server-session": 20,
         "amphp/http-server-static-content": 20,
         "amphp/log": 20,
+        "amphp/websocket": 20,
+        "amphp/websocket-server": 20,
         "amphp/php-cs-fixer-config": 20
     },
     "prefer-stable": true,

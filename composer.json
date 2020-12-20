@@ -8,6 +8,8 @@
         "amphp/http-server-session": "^3-dev",
         "amphp/http-server-static-content": "^2-dev",
         "amphp/log": "^2-dev",
+        "amphp/websocket": "^2-dev",
+        "amphp/websocket-server": "^3-dev",
         "monolog/monolog": "^2.2"
     },
     "require-dev": {

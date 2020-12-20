@@ -23,6 +23,7 @@ class HeaderMiddleware implements Middleware
         if (!$response->hasHeader('Content-Security-Policy')) {
             $response->setHeader('Content-Security-Policy', \implode('; ', [
                 "default-src 'self'",
+                "connect-src 'self' wss:",
                 'block-all-mixed-content',
                 "base-uri 'self'",
             ]));
