@@ -64,6 +64,13 @@ Loop::setErrorHandler(function (\Throwable $exception) use ($logger): void {
 $requestHandler = new Router;
 
 $requestHandler->addRoute('GET', '/broadcast', new Websocket(new class() implements ClientHandler {
+    private \SplQueue $messages;
+
+    public function __construct()
+    {
+        $this->messages = new \SplQueue;
+    }
+
     public function handleHandshake(Gateway $gateway, Request $request, Response $response): Response
     {
         $uri = Uri::createFromString($request->getHeader('origin'));
@@ -77,14 +84,34 @@ $requestHandler->addRoute('GET', '/broadcast', new Websocket(new class() impleme
 
     public function handleClient(Gateway $gateway, Client $client, Request $request, Response $response): void
     {
-        $gateway->broadcast(\sprintf('Client %d from %s joined', $client->getId(), $client->getRemoteAddress()));
+        $this->sendQueuedMessages($client);
+
+        $this->broadcast($gateway, \sprintf('Client %d from %s joined', $client->getId(), $client->getRemoteAddress()));
 
         try {
             while ($message = $client->receive()) {
-                $gateway->broadcast(\sprintf('%d: %s', $client->getId(), $message->buffer()));
+                $this->broadcast($gateway, \sprintf('%d: %s', $client->getId(), $message->buffer()));
             }
         } finally {
-            $gateway->broadcast(\sprintf('Client %d from %s left', $client->getId(), $client->getRemoteAddress()));
+            $this->broadcast($gateway, \sprintf('Client %d from %s left', $client->getId(), $client->getRemoteAddress()));
+        }
+    }
+
+    private function broadcast(Gateway $gateway, string $payload): void
+    {
+        $this->messages->push($payload);
+
+        if ($this->messages->count() > 20) {
+            $this->messages->dequeue();
+        }
+
+        $gateway->broadcast($payload);
+    }
+
+    private function sendQueuedMessages(Client $client): void
+    {
+        foreach ($this->messages as $message) {
+            $client->send($message);
         }
     }
 }));
