@@ -4,7 +4,6 @@ namespace AsyncPHP;
 
 require __DIR__ . "/vendor/autoload.php";
 
-use Amp\ByteStream\ResourceOutputStream;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Middleware;
 use Amp\Http\Server\Request;
@@ -27,7 +26,7 @@ use AsyncPHP\Middleware\OriginMiddleware;
 use League\Uri\Uri;
 use Monolog\Logger;
 use function Amp\ByteStream\getStdout;
-use function Amp\signal;
+use function Amp\trap;
 
 $context = (new Socket\BindContext)
     ->withTlsContext(
@@ -47,7 +46,7 @@ $unencrypted = \array_map(function (string $uri): Server {
 }, REDIRECT_URIS);
 
 // Switch to configured user after binding sockets.
-if (defined('USER_ID') && !\posix_setuid(USER_ID)) {
+if (\defined('USER_ID') && !\posix_setuid(USER_ID)) {
     throw new \RuntimeException('Could not switch to user ' . USER_ID);
 }
 
@@ -124,7 +123,7 @@ $server->start();
 $redirect->start();
 
 // Await SIGINT, SIGTERM, or SIGSTOP to be received.
-$signal = signal(\SIGINT, \SIGTERM);
+$signal = trap(\SIGINT, \SIGTERM);
 
 $logger->info(\sprintf("Received signal %d, stopping HTTP server", $signal));
 

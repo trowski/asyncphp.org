@@ -12,7 +12,6 @@ class HeaderMiddleware implements Middleware
     public function handleRequest(Request $request, RequestHandler $requestHandler): Response
     {
         $response = $requestHandler->handleRequest($request);
-        \assert($response instanceof Response, 'Responder must resolve to an instance of ' . Response::class);
 
         $response->setHeader('X-Frame-Options', 'SAMEORIGIN');
         $response->setHeader('X-XSS-Protection', '1; mode=block');
