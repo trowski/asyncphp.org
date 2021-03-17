@@ -86,14 +86,14 @@ $requestHandler->addRoute('GET', '/broadcast', new Websocket(new class() impleme
     {
         $this->sendQueuedMessages($client);
 
-        $this->broadcast($gateway, \sprintf('Client %d from %s joined', $client->getId(), $client->getRemoteAddress()));
+        $this->broadcast($gateway, \sprintf('Client %d joined', $client->getId()));
 
         try {
             while ($message = $client->receive()) {
                 $this->broadcast($gateway, \sprintf('%d: %s', $client->getId(), $message->buffer()));
             }
         } finally {
-            $this->broadcast($gateway, \sprintf('Client %d from %s left', $client->getId(), $client->getRemoteAddress()));
+            $this->broadcast($gateway, \sprintf('Client %d left', $client->getId()));
         }
     }
 
