@@ -84,16 +84,23 @@ $requestHandler->addRoute('GET', '/broadcast', new Websocket(new class() impleme
 
     public function handleClient(Gateway $gateway, Client $client, Request $request, Response $response): void
     {
+        $client->send('Enter a username (16-chars max)');
+
+        $message = $client->receive();
+        $username = \substr($message->buffer(), 0, 16);
+
+        $client->send(\sprintf('Username set to "%s"', $username));
+
         $this->sendQueuedMessages($client);
 
-        $this->broadcast($gateway, \sprintf('Client %d joined', $client->getId()));
+        $this->broadcast($gateway, \sprintf('%s joined', $username));
 
         try {
             while ($message = $client->receive()) {
-                $this->broadcast($gateway, \sprintf('%d: %s', $client->getId(), $message->buffer()));
+                $this->broadcast($gateway, \sprintf('%s: %s', $username, $message->buffer()));
             }
         } finally {
-            $this->broadcast($gateway, \sprintf('Client %d left', $client->getId()));
+            $this->broadcast($gateway, \sprintf('%s left', $username));
         }
     }
 
