@@ -13,7 +13,7 @@ ws.addEventListener("message", function(e) {
 
     list.append(listItem);
 
-    while (list.children.length > 5) {
+    while (list.children.length > 20) {
         list.removeChild(list.firstChild);
     }
 });
